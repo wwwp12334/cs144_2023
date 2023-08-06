@@ -9,8 +9,8 @@ using namespace std;
 
 void get_URL( const string& host, const string& path )
 {
-  //cerr << "Function called: get_URL(" << host << ", " << path << ")\n";
-  //cerr << "Warning: get_URL() has not been implemented yet.\n";
+  cerr << "Function called: get_URL(" << host << ", " << path << ")\n";
+  cerr << "Warning: get_URL() has not been implemented yet.\n";
 
   string buffer;
   Address address(host, "http");
@@ -23,6 +23,7 @@ void get_URL( const string& host, const string& path )
   http_socket.write("\r\n");
 
   while (!http_socket.eof()) {
+    cout<<"wp";
     http_socket.read(buffer);
   }
 
