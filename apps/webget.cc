@@ -11,6 +11,21 @@ void get_URL( const string& host, const string& path )
 {
   cerr << "Function called: get_URL(" << host << ", " << path << ")\n";
   cerr << "Warning: get_URL() has not been implemented yet.\n";
+
+  Address address(host, "http");
+  TCPSocket http_socket;
+
+  http_socket.connect(address);
+  http_socket.write("GET" + path + "HTTP/1.1\r\n");
+  http_socket.write("Host: " + host +"/r/n");
+  http_socket.write("Conntion: close\r\n");
+  http_socket.write("\r\n");
+
+  while (!http_socket.eof()) {
+    cout<<http_socket.read();
+  }
+
+  http_socket.close();
 }
 
 int main( int argc, char* argv[] )
