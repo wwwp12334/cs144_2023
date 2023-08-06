@@ -3,6 +3,7 @@
 #include <queue>
 #include <stdexcept>
 #include <string>
+#include <deque>
 #include <string_view>
 
 class Reader;
@@ -12,6 +13,11 @@ class ByteStream
 {
 protected:
   uint64_t capacity_;
+  std::deque<char> queue;
+  bool is_stop;
+  bool is_err;
+  int writeByte;
+  int readByte;
   // Please add any additional state to the ByteStream here, and not to the Writer and Reader interfaces.
 
 public:
