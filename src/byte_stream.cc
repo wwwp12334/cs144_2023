@@ -4,8 +4,8 @@
 
 using namespace std;
 
-ByteStream::ByteStream( uint64_t capacity ) : capacity_( capacity ), queue(), is_err(false), 
-                                          is_stop(false), writeByte(0), readByte(0) {}
+ByteStream::ByteStream( uint64_t capacity ) : capacity_( capacity ), buffer(), is_stop(false), 
+                                          is_err(false), writeByte(0), readByte(0) {}
 
 void Writer::push( string data )
 {
@@ -13,9 +13,9 @@ void Writer::push( string data )
   if (is_stop || is_err)
     return ;
 
-  int numByte = min(data.size(), capacity_ - queue.size());
+  int numByte = min(data.size(), capacity_ - buffer.size());
   for (int i = 0; i < numByte; ++i) {
-    queue.push(data[i]);
+    buffer.push(data[i]);
   }
 
   writeByte += numByte;
@@ -42,7 +42,7 @@ bool Writer::is_closed() const
 uint64_t Writer::available_capacity() const
 {
   // Your code here.
-  return capacity_ - queue.size();
+  return capacity_ - buffer.size();
 }
 
 uint64_t Writer::bytes_pushed() const
@@ -54,13 +54,13 @@ uint64_t Writer::bytes_pushed() const
 string_view Reader::peek() const
 {
   // Your code here.
-  return { &queue.front(), 1};
+  return { &buffer.front(), 1};
 }
 
 bool Reader::is_finished() const
 {
   // Your code here.
-  if (is_stop && queue.size() == 0)
+  if (is_stop && buffer.size() == 0)
     return true;
   else
     return false;
@@ -75,9 +75,9 @@ bool Reader::has_error() const
 void Reader::pop( uint64_t len )
 {
   // Your code here.
-  int numByte = min(len, queue.size());
+  int numByte = min(len, buffer.size());
   for (int i = 0; i < numByte; ++i) {
-    queue.pop();
+    buffer.pop();
   }
 
   readByte += len;
@@ -86,7 +86,7 @@ void Reader::pop( uint64_t len )
 uint64_t Reader::bytes_buffered() const
 {
   // Your code here.
-  return queue.size();
+  return buffer.size();
 }
 
 uint64_t Reader::bytes_popped() const

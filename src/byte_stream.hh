@@ -13,7 +13,7 @@ class ByteStream
 {
 protected:
   uint64_t capacity_;
-  std::deque<char> queue;
+  std::queue<char> buffer;
   bool is_stop;
   bool is_err;
   int writeByte;
