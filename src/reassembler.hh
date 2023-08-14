@@ -3,7 +3,7 @@
 #include "byte_stream.hh"
 
 #include <string>
-#include <map>
+#include <unordered_map>
 
 class Reassembler
 {
@@ -36,7 +36,7 @@ public:
   Reassembler();
 
 private:
-  std::map<int,char> buffer;
+  std::unordered_map<int,char> buffer;
   uint64_t first_unassembled_index;
   bool is_last;
   uint64_t is_last_index;
