@@ -40,4 +40,5 @@ private:
   uint64_t first_unassembled_index;
   bool is_last;
   uint64_t is_last_index;
+  int buffer_size;
 };

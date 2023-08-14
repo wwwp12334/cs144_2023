@@ -5,7 +5,7 @@
 
 using namespace std;
 
-Reassembler::Reassembler() : buffer(), first_unassembled_index(0), is_last(false), is_last_index(0) {}
+Reassembler::Reassembler() : buffer(), first_unassembled_index(0), is_last(false), is_last_index(0), buffer_size(0) {}
 
 void Reassembler::insert( uint64_t first_index, string data, bool is_last_substring, Writer& output )
 {
@@ -41,15 +41,19 @@ void Reassembler::insert( uint64_t first_index, string data, bool is_last_substr
       buffer[i] = data[j];
       //std::cout<<"i: "<<i<<" buffer: "<<buffer[i]<<std::endl;
       //usleep(1000);
+      ++buffer_size;
     }
   }
+
+  //buffer_size += end_index - first_index;
+  
 
   if (buffer.count(first_unassembled_index)) {
     int pre = first_unassembled_index - 1;
     //printf("pre: %d\n",pre);
     string s;
-    vector<int> to_move;
-    for (auto begin = buffer.begin(); begin != buffer.end(); ++begin) {
+    //vector<int> to_move;
+    for (auto begin = buffer.lower_bound(first_unassembled_index); begin != buffer.end(); ++begin) {
       //printf("begin-pre: %d\n", begin->first - pre);
       if (begin->first - pre != 1)
         break;
@@ -59,12 +63,13 @@ void Reassembler::insert( uint64_t first_index, string data, bool is_last_substr
       
       pre = begin->first;
       //buffer.erase(begin->first);
-      to_move.push_back(begin->first);
+      //to_move.push_back(begin->first);
+      --buffer_size;
     }
 
-    for (int i : to_move) {
-      buffer.erase(i);
-    }
+    //for (int i : to_move) {
+    //  buffer.erase(i);
+    //}
 
     output.push(s);
     first_unassembled_index = pre + 1;
@@ -80,5 +85,5 @@ void Reassembler::insert( uint64_t first_index, string data, bool is_last_substr
 uint64_t Reassembler::bytes_pending() const
 {
   // Your code here. 
-  return buffer.size();
+  return buffer_size;
 }
