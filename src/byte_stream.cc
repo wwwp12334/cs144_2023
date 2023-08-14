@@ -1,4 +1,5 @@
 #include <stdexcept>
+#include <iostream>
 
 #include "byte_stream.hh"
 
@@ -42,6 +43,8 @@ bool Writer::is_closed() const
 uint64_t Writer::available_capacity() const
 {
   // Your code here.
+  //cout<<"buffer.size()"<<buffer.size()<<endl;
+  //cout<<"cap"<<capacity_<<endl;
   return capacity_ - buffer.size();
 }
 

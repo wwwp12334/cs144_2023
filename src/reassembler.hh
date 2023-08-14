@@ -3,6 +3,7 @@
 #include "byte_stream.hh"
 
 #include <string>
+#include <map>
 
 class Reassembler
 {
@@ -31,4 +32,12 @@ public:
 
   // How many bytes are stored in the Reassembler itself?
   uint64_t bytes_pending() const;
+
+  Reassembler();
+
+private:
+  std::map<int,char> buffer;
+  uint64_t first_unassembled_index;
+  bool is_last;
+  uint64_t is_last_index;
 };
