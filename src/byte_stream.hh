@@ -19,7 +19,7 @@ protected:
   int writeByte;
   int readByte;
   // Please add any additional state to the ByteStream here, and not to the Writer and Reader interfaces.
-/*uint64_t capacity_;
+  /*uint64_t capacity_;
   // Please add any additional state to the ByteStream here, and not to the Writer and Reader interfaces.
   bool is_closed_ { false };
   bool has_error_ { false };
@@ -30,8 +30,8 @@ protected:
 
   std::deque<std::string> data_queue_ {};
   std::deque<std::string_view> view_queue_ {};
-*/
 
+*/
 
 public:
   explicit ByteStream( uint64_t capacity );

@@ -97,7 +97,8 @@ uint64_t Reader::bytes_popped() const
   // Your code here.
   return readByte;
 }
-/*#include <stdexcept>
+/*
+#include <stdexcept>
 
 #include "byte_stream.hh"
 
@@ -190,4 +191,5 @@ uint64_t Reader::bytes_buffered() const
 uint64_t Reader::bytes_popped() const
 {
   return num_bytes_popped_;
-}*/
+}
+*/
