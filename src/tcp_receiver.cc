@@ -30,7 +30,7 @@ TCPReceiverMessage TCPReceiver::send( const Writer& inbound_stream ) const
   TCPReceiverMessage receiver {};
  // cout<<"pp1"<<endl;
   receiver.window_size = inbound_stream.available_capacity() < UINT16_MAX ? inbound_stream.available_capacity() : UINT16_MAX;
-  cout<<"ava: "<<inbound_stream.available_capacity()<<endl;
+  //cout<<"ava: "<<inbound_stream.available_capacity()<<endl;
 
   if (!zero_point.has_value()) {
  //   cout<<"pp2"<<endl;
@@ -39,7 +39,7 @@ TCPReceiverMessage TCPReceiver::send( const Writer& inbound_stream ) const
 //cout<<"pp3"<<endl;
   receiver.ackno = Wrap32::wrap(inbound_stream.bytes_pushed() + 1 + inbound_stream.is_closed(), zero_point.value());
   
-  cout<<receiver.window_size<<endl;
+  //cout<<receiver.window_size<<endl;
 
   return receiver;
 }

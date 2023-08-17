@@ -3,7 +3,10 @@
 #include "byte_stream.hh"
 
 #include <string>
-#include <unordered_map>
+#include <map>
+#include <unordered_set>
+
+using namespace std;
 
 class Reassembler
 {
@@ -36,9 +39,10 @@ public:
   Reassembler();
 
 private:
-  std::unordered_map<int,char> buffer;
+  map<uint64_t,string> buffer;
   uint64_t first_unassembled_index;
   bool is_last;
   uint64_t is_last_index;
-  int buffer_size;
+  uint64_t buffer_size;
+  unordered_set<uint64_t> delay_delete;
 };

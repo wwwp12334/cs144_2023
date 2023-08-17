@@ -1,100 +1,113 @@
 #include "reassembler.hh"
 #include <algorithm>
 #include <iostream>
+#include <vector>
+#include <string>
 #include <unistd.h>
 
 using namespace std;
 
-Reassembler::Reassembler() : buffer(), first_unassembled_index(0), is_last(false), is_last_index(0), buffer_size(0) {}
+Reassembler::Reassembler() : buffer(), first_unassembled_index(0), is_last(false), 
+                              is_last_index(0), buffer_size(0), delay_delete() {}
 
 void Reassembler::insert( uint64_t first_index, string data, bool is_last_substring, Writer& output )
 {
-  // Your code here.
   if (output.is_closed()) {
     return ;
   }
 
   if (is_last_substring) {
-    //std::cout<<"pp"<<std::endl;
     is_last = true;
     is_last_index = first_index + data.size();
   }
-  //std::cout<<"data: "<<data<<std::endl;
-//std::cout<<"begin-first-unassembled: "<<first_unassembled_index<<std::endl;
-  uint64_t first_unacceptable_index = first_unassembled_index + output.available_capacity();
-  //std::cout<<"available: "<<output.available_capacity()<<std::endl;
-
-  uint64_t end_index = first_index + data.size();
-
-  uint64_t j = 0;
-  if (first_unassembled_index >= first_index) {
-    j += first_unassembled_index - first_index;
-  }
-
-  first_index = max(first_index, first_unassembled_index);
-  end_index = min(end_index, first_unacceptable_index);
-  //std::cout<<"first: "<<first_index<<"end_index "<<end_index<<endl;
-  
-//std::cout<<"j: "<<j<<std::endl;
-  for (uint64_t i = first_index; i < end_index; ++i, ++j) {
-    if (!buffer.count(i)) {
-      buffer[i] = data[j];
-      //std::cout<<"i: "<<i<<" buffer: "<<buffer[i]<<std::endl;
-      //usleep(1000);
-      //++buffer_size;
-    }
-  }
-
-  //buffer_size += end_index - first_index;
-  
-
- /* if (buffer.count(first_unassembled_index)) {
-    int pre = first_unassembled_index - 1;
-    //printf("pre: %d\n",pre);
-    string s;
-    //vector<int> to_move;
-    for (auto begin = buffer.lower_bound(first_unassembled_index); begin != buffer.end(); ++begin) {
-      //printf("begin-pre: %d\n", begin->first - pre);
-      if (begin->first - pre != 1)
-        break;
-
-      s += begin->second;
-      //std::cout<<"s: "<<s<<std::endl;
-      
-      pre = begin->first;
-      //buffer.erase(begin->first);
-      //to_move.push_back(begin->first);
-      --buffer_size;
-    }
-
-    //for (int i : to_move) {
-    //  buffer.erase(i);
-    //}
-
-    output.push(s);
-    first_unassembled_index = pre + 1;
-    //std::cout<<"end-first-unassembled: "<<first_unassembled_index<<std::endl;
-  }
-*/
-
-  string s;
-  while (buffer.count(first_unassembled_index)) {
-    s += buffer[first_unassembled_index];
-    //--buffer_size;
-    buffer.erase(first_unassembled_index);
-    ++first_unassembled_index;
-  }
-
-  output.push(s);
 
   if (is_last && first_unassembled_index >= is_last_index) {
     output.close();
-    //std::cout<<"wp "<<std::endl;
+    return ;
+  }
+
+  uint64_t first_unacceptable_index = first_unassembled_index + output.available_capacity();//开区间)
+  uint64_t end_index = first_index + data.size();
+
+  if (first_index >= first_unacceptable_index || end_index <= first_unassembled_index)
+    return ;
+
+  uint64_t absolute_index = 0;
+  if (first_unassembled_index > first_index) {
+    absolute_index += first_unassembled_index - first_index;
+  }
+
+  first_index = max(first_index, first_unassembled_index);
+  end_index = min(end_index, first_unacceptable_index);//[区间)
+
+  bool flag = true;
+  auto it = buffer.lower_bound(first_index);
+  if (it != buffer.end() && it->first == first_index) {
+    if (first_index - end_index <= (it->second).size())
+      return ;
+
+    absolute_index += it->first + (it->second).size() - first_index;
+    first_index = it->first + (it->second).size();
+  } else {
+    if (it == buffer.begin()) {
+      flag = false;
+    } else {
+      --it;
+      absolute_index += (first_index >= it->first + (it->second).size()) ? 0 : (it->first + (it->second).size() - first_index);
+      first_index = max(it->first + (it->second).size(), first_index);
+    }
+  } 
+
+  if (flag)
+    ++it;
+
+  while (it != buffer.end()) {
+    if (end_index <= it->first) {
+      break;
+    } else if (end_index > it->first + (it->second).size()) { 
+      buffer_size -= (it->second).size();
+      delay_delete.insert(it->first);
+    } else {
+      end_index = it->first;
+      break;
+    }
+
+    ++it;
+  }
+
+  string s;
+  if (end_index - first_index > 0 && absolute_index < data.size())
+    s = data.substr(absolute_index, end_index - first_index);
+
+  if (s.empty())
+    return ;
+
+  buffer_size += s.size();
+
+  for (auto p = delay_delete.begin(); p != delay_delete.end(); ++p) {
+    buffer.erase(*p);
+  }
+  delay_delete.clear();
+
+  buffer[first_index] = s;
+
+  for (it = buffer.begin(); it != buffer.end();) {
+    if (it->first == first_unassembled_index) {
+      first_unassembled_index += (it->second).size();
+      buffer_size -= (it->second).size();
+      output.push(move(it->second));
+      it = buffer.erase(it);
+    } else {
+      break;
+    }
+  }
+
+  if (is_last && first_unassembled_index >= is_last_index) {
+    output.close();
   }
 }
 
 uint64_t Reassembler::bytes_pending() const
 {
-  // Your code here. 
-  return buffer.size();
+  return buffer_size;
 }
