@@ -11,6 +11,8 @@
 #include <unordered_map>
 #include <utility>
 
+using namespace std;
+
 // A "network interface" that connects IP (the internet layer, or network layer)
 // with Ethernet (the network access layer, or link layer).
 
@@ -40,6 +42,11 @@ private:
 
   // IP (known as Internet-layer or network-layer) address of the interface
   Address ip_address_;
+
+  unordered_map<uint32_t, pair<EthernetAddress, size_t>> ip_and_mac {};
+  unordered_map<uint32_t, size_t> arp_timer {};
+  unordered_map<uint32_t, vector<InternetDatagram>> waited_dagrams {};
+  queue<EthernetFrame> out_frames {};
 
 public:
   // Construct a network interface with given Ethernet (network-access-layer) and IP (internet-layer)
