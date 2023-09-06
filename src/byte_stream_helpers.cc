@@ -14,6 +14,7 @@ void read( Reader& reader, uint64_t len, std::string& out )
   while ( reader.bytes_buffered() and out.size() < len ) {
     auto view = reader.peek();
 
+
     if ( view.empty() ) {
       throw std::runtime_error( "Reader::peek() returned empty string_view" );
     }
