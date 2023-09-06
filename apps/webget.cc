@@ -24,8 +24,9 @@ void get_URL( const string& host, const string& path )
 
   while (!http_socket.eof()) {
     http_socket.read(buffer);
-    cout<<buffer;
   }
+
+  cout<<buffer<<endl;
 
   http_socket.close();
 }
